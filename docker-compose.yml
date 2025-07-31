@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  telegram-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - TELEGRAM_API_ID=${TELEGRAM_API_ID}
+      - TELEGRAM_API_HASH=${TELEGRAM_API_HASH}
+      - TELEGRAM_PHONE=${TELEGRAM_PHONE}
+      - API_TOKEN=${API_TOKEN}
+    volumes:
+      # Persist Telegram session files
+      - telegram_sessions:/app/sessions
+      # Mount .env file for easy configuration
+      - ./.env:/app/.env:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  telegram_sessions:
+    driver: local 

@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class TelegramNewsHandler:
-    def __init__(self, api_id: str, api_hash: str, phone: str):
+    def __init__(self, api_id: str, api_hash: str, phone: str, session_path: str = None):
         """
         Initialize the Telegram client
         
@@ -19,8 +19,16 @@ class TelegramNewsHandler:
             api_id: Telegram API ID
             api_hash: Telegram API Hash
             phone: Phone number for authentication
+            session_path: Path to session file (optional)
         """
-        self.client = TelegramClient('news_session', api_id, api_hash)
+        if session_path:
+            # Use provided session path
+            session_file = os.path.join(session_path, 'news_session')
+        else:
+            # Use default session file in current directory
+            session_file = 'news_session'
+            
+        self.client = TelegramClient(session_file, api_id, api_hash)
         self.phone = phone
         
     async def start(self):
@@ -43,8 +51,8 @@ class TelegramNewsHandler:
             List of posts with their details
         """
         try:
-            # Calculate the time threshold
-            now = datetime.now()
+            # Calculate the time threshold (make it timezone-aware)
+            now = datetime.now().replace(tzinfo=None)
             time_threshold = now - timedelta(hours=duration_hours)
             
             posts = []
@@ -55,19 +63,16 @@ class TelegramNewsHandler:
             # Fetch messages from the channel
             async for message in self.client.iter_messages(entity, limit=None):
                 # Stop if we've gone past our time threshold
-                if message.date < time_threshold:
+                # Convert message.date to timezone-naive for comparison
+                message_date = message.date.replace(tzinfo=None)
+                if message_date < time_threshold:
                     break
                     
                 # Only include text messages (skip media-only posts)
                 if message.text:
                     post_data = {
-                        'channel': channel,
-                        'message_id': message.id,
                         'date': message.date.isoformat(),
                         'text': message.text,
-                        'views': getattr(message, 'views', None),
-                        'forwards': getattr(message, 'forwards', None),
-                        'replies': getattr(message.replies, 'replies', None) if message.replies else None
                     }
                     posts.append(post_data)
                     
