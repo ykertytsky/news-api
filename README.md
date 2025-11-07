@@ -91,13 +91,13 @@ Authorization: Bearer your_api_token_here
 
 ```bash
 # Build and start the container
-docker-compose up -d
+docker compose up -d
 
 # Check logs
-docker-compose logs -f
+docker compose logs -f
 
 # Stop the container
-docker-compose down
+docker compose down
 ```
 
 ### Session Management
@@ -107,41 +107,41 @@ The Docker setup includes session persistence and management tools:
 #### First-time Setup (Interactive)
 ```bash
 # Set up session interactively (you'll need to enter phone code)
-docker-compose run --rm telegram-api python session_manager.py setup /app/sessions
+docker compose run --rm telegram-api python session_manager.py setup /app/sessions
 ```
 
 #### Reset Session (if needed)
 ```bash
 # Reset existing session
-docker-compose run --rm telegram-api python session_manager.py reset /app/sessions
+docker compose run --rm telegram-api python session_manager.py reset /app/sessions
 ```
 
 #### Session Persistence
 
 - Session files are stored in a Docker volume (`telegram_sessions`)
 - Sessions persist across container restarts
-- To completely reset, remove the volume: `docker-compose down -v`
+- To completely reset, remove the volume: `docker compose down -v`
 
 ### Docker Commands
 
 ```bash
 # Build image
-docker-compose build
+docker compose build
 
 # Start services
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f telegram-api
+docker compose logs -f telegram-api
 
 # Stop services
-docker-compose down
+docker compose down
 
 # Rebuild and restart
-docker-compose up -d --build
+docker compose up -d --build
 
 # Access container shell
-docker-compose exec telegram-api bash
+docker compose exec telegram-api bash
 ```
 
 ### Environment Variables for Docker
